@@ -1,3 +1,9 @@
+// To exceed requirements:
+// I added a randomization to the number of words hidden in each iteration.
+// I added a text file with a premade list of a few scriptures for the user to choose from, as well as the option to add their own.
+// I created a loop to make sure the program didn't try to hide more words than were still showing, and would supply a new message when the
+// scripture is completely hidden.
+
 using System;
 
 class Program
@@ -31,7 +37,7 @@ class Program
 
             scripture = new Scripture(reference, text);
         }
-        
+
         else // User selects from given list
         {
             string[] parts = input.Split(new char[] {' ', '-' , ':'});
