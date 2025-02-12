@@ -1,3 +1,5 @@
+using System.ComponentModel;
+
 public abstract class Goal
 {
     protected string _name;
@@ -17,8 +19,13 @@ public abstract class Goal
 
     public virtual string GetDetailsString()
     {
-        return $"[{IsComplete()}]{_name}: {_description}";   
+        string completeTag = " ";
+        if (IsComplete())
+        {
+            completeTag = "X";
+        }
+        return $"[{completeTag}]{_name} ({_description})";   
     }
 
-    public abstract void GetStringRepresentation();
+    public abstract string GetStringRepresentation();
 }
