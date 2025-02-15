@@ -1,11 +1,15 @@
 public class GoalManager
 {
     private List<Goal> _goals; // list of goals
-    private int _score;
+    private int _scoreTotal;
+    private int _scoreRemaining;
+    private int _level;
+
 
     public GoalManager() 
     {
-        _score = 0;
+        _scoreTotal = 0;
+        _level = 1;
         _goals = new List<Goal>();
     }
 
@@ -13,6 +17,8 @@ public class GoalManager
     {
         while (true)
         {
+            _level = CalculateLevel();
+            _scoreRemaining = CalculateScoreRemaining();
             DisplayPlayerInfo();
             Console.Write("Menu Options:\n  1. Create New Goal\n  2. List Goals\n  3. Save Goals\n  4. Load Goals\n  5. Record Event\n  6. Quit\nSelect a choice from the menu: ");
             string choice = Console.ReadLine();
@@ -53,7 +59,8 @@ public class GoalManager
 
     public void DisplayPlayerInfo()
     {
-        Console.WriteLine($"\nYou have {_score} points:\n");
+
+        Console.WriteLine($"\nLevel: {_level}\nScore this Level: {_scoreRemaining}\nPoints to Next Level: {PointsToNextLevel()}\n");
     }
 
     public void ListGoalNames()
@@ -85,8 +92,21 @@ public class GoalManager
         string name = Console.ReadLine();
         Console.Write("What is a brief description of this goal? ");
         string description = Console.ReadLine();
-        Console.Write("What is the amount of points you would associate with this goal? ");
-        int points = int.Parse(Console.ReadLine());
+        Console.Write("How difficult is this goal to you?\n  1. Easy\n  2. Average\n  3. Hard\nWhat is your rating? ");
+        string difficulty = Console.ReadLine();
+        int points = 0;
+        if (difficulty == "1")
+        {
+            points = 8;
+        }
+        else if (difficulty == "2")
+        {
+            points = 10;
+        }
+        else if (difficulty == "3")
+        {
+            points = 12;
+        }
         if (input == "1")
         {
             _goals.Add(new SimpleGoal(name, description, points));
@@ -99,8 +119,7 @@ public class GoalManager
         {
             Console.Write("How many times does this goal need to be accomplished for a bonus? ");
             int target = int.Parse(Console.ReadLine());
-            Console.Write("How many points will this bonus be? ");
-            int bonus = int.Parse(Console.ReadLine());
+            int bonus = points*target*target;
             _goals.Add(new ChecklistGoal(name, description, points, bonus, target));
         }
     }
@@ -112,15 +131,16 @@ public class GoalManager
         Console.Write("Which goal did you accomplish? ");
         int goalIndex = int.Parse(Console.ReadLine()) - 1;
         _goals[goalIndex].RecordEvent();
-        _score += GoalPoints(_goals[goalIndex]);
-        Console.WriteLine($"You now have {_score} points.");
+        _scoreTotal += GoalPoints(_goals[goalIndex]);
+        Console.WriteLine($"You now have {_scoreRemaining} points.");
     }
 
     private void SaveGoals(string fileName)
     {
         using (StreamWriter outputFile = new StreamWriter(fileName))
         {
-            outputFile.WriteLine(_score);
+            outputFile.WriteLine(_scoreRemaining);
+            outputFile.WriteLine(_level);
             foreach (Goal goal in _goals)
             {
                 outputFile.WriteLine(goal.GetStringRepresentation());
@@ -131,7 +151,8 @@ public class GoalManager
     private void LoadGoals(string fileName)
     {
         string[] lines = File.ReadAllLines(fileName);
-        _score = int.Parse(lines[0]);
+        _scoreRemaining = int.Parse(lines[0]);
+        _level = int.Parse(lines[1]);
         foreach (string line in lines)
         {
             if (line != "")
@@ -175,4 +196,47 @@ public class GoalManager
         }
         return points;
     }
+
+    private int CalculateLevel()
+    {
+        int level = 1;
+        int score = _scoreTotal;
+        while (true)
+        {
+            string scoreNeededString = Convert.ToString(Math.Round(Math.Pow(4 * _level, 3) / 5));
+            int scoreNeeded = int.Parse(scoreNeededString);
+            if (score >= scoreNeeded)
+            {
+                level += 1;
+                score -= scoreNeeded;
+            }
+            else
+            {
+                break;
+            }
+        }
+        return level;
+    }
+
+    private int CalculateScoreRemaining()
+    {
+        int score = _scoreTotal;
+        string scoreNeededString = Convert.ToString(Math.Round(Math.Pow(4 * (_level-1), 3) / 5));
+        int scoreNeeded = int.Parse(scoreNeededString);
+        int scoreRemaining = score-scoreNeeded;
+        if (scoreRemaining < 0)
+        {
+            scoreRemaining = 0;
+        }
+        return scoreRemaining;
+    }
+
+    private int PointsToNextLevel()
+    {
+        int score = _scoreTotal;
+        string scoreNeededString = Convert.ToString(Math.Round(Math.Pow(4 * _level, 3) / 5));
+        int scoreNeeded = int.Parse(scoreNeededString);
+        return scoreNeeded - score;
+    }
 }
+
