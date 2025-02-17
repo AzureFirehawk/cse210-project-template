@@ -13,9 +13,6 @@ class Program
 {
     static void Main(string[] args)
     {
-        Console.WriteLine("Hello World! This is the Mindfulness Project.");
-        Thread.Sleep(5000);
-        Console.Clear();
         BreathingActivity breathingActivity = new BreathingActivity();
         ListingActivity listingActivity = new ListingActivity();
         ReflectionActivity reflectionActivity = new ReflectionActivity();
