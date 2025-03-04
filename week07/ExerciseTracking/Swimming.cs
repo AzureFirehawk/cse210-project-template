@@ -1,4 +1,4 @@
-public class Swimming : Activity
+public class Swimming : Exercise
 {
     private int _laps;
     public Swimming(int duration,int laps) : base(duration) 
@@ -20,5 +20,10 @@ public class Swimming : Activity
     public override double GetPace()
     {
         return Math.Round(_duration / GetDistance(), 1);
+    }
+
+    public override string GetSaveSummary()
+    {
+        return $"{_date} š {_name} š {_duration} š {_laps} š {GetDistance():F1} š {GetSpeed():F1} š {GetPace():F1}";
     }
 }
